@@ -9,7 +9,15 @@ import { useBlobUrl } from '../photos'
 
 type Mode = 'browse' | 'pick'
 
-export default function Home({ settings, onOpenSettings }: { settings: Settings; onOpenSettings: () => void }) {
+export default function Home({
+  settings,
+  onOpenSettings,
+  onOpenTrips,
+}: {
+  settings: Settings
+  onOpenSettings: () => void
+  onOpenTrips: () => void
+}) {
   const mapEl = useRef<HTMLDivElement>(null)
   const mapRef = useRef<AMapNS>(null)
   const markersRef = useRef<Map<string, AMapNS>>(new Map())
@@ -155,6 +163,9 @@ export default function Home({ settings, onOpenSettings }: { settings: Settings;
             列表 {todoCount > 0 && <em>{todoCount}</em>}
           </button>
         </div>
+        <button className="btn-pill" onClick={onOpenTrips}>
+          行程
+        </button>
         <button className="icon-btn" onClick={onOpenSettings} aria-label="设置">
           ⚙︎
         </button>

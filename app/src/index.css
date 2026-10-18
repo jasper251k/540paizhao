@@ -588,3 +588,205 @@ textarea.input {
 .btn-primary:disabled {
   opacity: 0.5;
 }
+
+/* ---------- 行程 ---------- */
+.btn-pill {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--text);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.danger-text {
+  color: var(--accent);
+}
+.chev {
+  color: var(--sub);
+  font-size: 20px;
+}
+.section-title {
+  font-weight: 600;
+  margin: 16px 2px 0;
+}
+.check {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid #c8c8c8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #fff;
+}
+.is-picked .check {
+  background: var(--text);
+  border-color: var(--text);
+}
+.seg-day button {
+  padding: 4px 10px;
+}
+.place-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bottom-bar {
+  position: sticky;
+  bottom: 0;
+  margin: auto -16px calc(-1 * (env(safe-area-inset-bottom) + 24px));
+  padding: 12px 16px calc(env(safe-area-inset-bottom) + 16px);
+  background: linear-gradient(transparent, var(--bg) 30%);
+  display: flex;
+}
+.bottom-bar .btn-primary {
+  flex: 1;
+}
+.sheet-mask.center {
+  align-items: center;
+  justify-content: center;
+}
+.progress-box {
+  background: var(--card);
+  padding: 18px 24px;
+  border-radius: 14px;
+  font-size: 15px;
+}
+
+.endpoint {
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  white-space: nowrap;
+}
+.num-pin {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.num-pin.pin-shot {
+  background: var(--shot);
+}
+
+.route-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  max-height: 58%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+}
+.route-panel.collapsed .route-list {
+  display: none;
+}
+.route-head {
+  padding: 8px 16px 6px;
+}
+.route-summary {
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.route-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px calc(env(safe-area-inset-bottom) + 16px);
+  overflow-y: auto;
+}
+.stop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.stop.is-shot {
+  opacity: 0.55;
+}
+.stop-dot {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.endpoint-dot {
+  background: var(--text);
+}
+.stop-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+.eta {
+  font-size: 13px;
+  color: var(--sub);
+  font-variant-numeric: tabular-nums;
+}
+.leg {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0 8px 22px;
+}
+.leg-line {
+  width: 4px;
+  flex: none;
+  border-radius: 2px;
+}
+.leg-body {
+  flex: 1;
+  min-width: 0;
+}
+.leg-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.leg-step {
+  font-size: 13px;
+  color: #555;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.leg-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.leg-actions .chip {
+  font-size: 13px;
+  padding: 5px 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.leg-actions .chip.on {
+  color: #fff;
+}

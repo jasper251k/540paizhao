@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react'
 
 declare global {
   interface Window {
@@ -16,7 +17,7 @@ let loading: Promise<AMapNS> | null = null
 export function loadAMap(key: string, securityJsCode: string): Promise<AMapNS> {
   if (loading) return loading
   window._AMapSecurityConfig = { securityJsCode }
-  const plugins = ['AMap.AutoComplete', 'AMap.Geocoder', 'AMap.Scale'].join(',')
+  const plugins = ['AMap.AutoComplete', 'AMap.Geocoder', 'AMap.Scale', 'AMap.Transfer', 'AMap.Walking', 'AMap.Riding'].join(',')
   loading = new Promise((resolve, reject) => {
     const s = document.createElement('script')
     s.src = `https://webapi.amap.com/maps?v=2.0&key=${encodeURIComponent(key)}&plugin=${plugins}`
@@ -28,4 +29,13 @@ export function loadAMap(key: string, securityJsCode: string): Promise<AMapNS> {
     document.head.appendChild(s)
   })
   return loading
+}
+
+export function useAMap({ amapKey, amapSecurityCode }: { amapKey: string; amapSecurityCode: string }) {
+  const [AMap, setAMap] = useState<AMapNS>(null)
+  const [error, setError] = useState('')
+  useEffect(() => {
+    loadAMap(amapKey, amapSecurityCode).then(setAMap, (e) => setError(e.message))
+  }, [amapKey, amapSecurityCode])
+  return [AMap, error] as const
 }

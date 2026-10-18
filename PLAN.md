@@ -149,3 +149,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 2026-10-18：步骤 1 用户实测通过。用户要求去掉小红书链接，只上传参考图（已从数据结构删掉 xhsUrl）。
 - 2026-10-18：步骤 2 代码完成。`src/photos.ts`（压缩、useBlobUrl）、`SpotEditor` 加选图 / 删图 / 设封面、新增 `SpotViewer`（点机位先看大图，左右滑，点图全屏，「拍完了」按钮，再点「编辑」）。地图标记和列表显示封面缩略图，已拍的变灰。待手机实测。
 - 2026-10-18：已提前部署（局域网访问不通：电脑开着 VPN 类隧道 utun6 抢了默认路由）。公开仓库 github.com/jasper251k/540paizhao，网址 https://jasper251k.github.io/540paizhao/ 。以后改完运行 `./deploy.sh` 发布（构建后强推 gh-pages 分支）。`vite.config.ts` 构建时 base 为 `/540paizhao/`。
+- 2026-10-18：步骤 3 代码完成，并提前做了步骤 4 的一天/两天分配和估算到达时间。`src/routing.ts`（高德 Transfer/Walking/Riding 查询、350ms 限流、LegCache 缓存 30 天、≤8 个点全排列否则最近邻+2-opt、跳高德导航链接）、`pages/Trips.tsx`（行程列表）、`pages/Planner.tsx`（名字、出发地、终点默认家、可选出发时间、一天/两天、勾选待拍机位并分天）、`pages/TripView.tsx`（地图画线+序号标记、分段详情、高德导航、单段改骑车、已拍、删除行程）。首页顶栏加「行程」入口。db 升到 version 2（trips、legs 表）。< 1 km 直接步行，地铁查不到也退回步行。待手机实测高德返回字段是否与代码一致。
