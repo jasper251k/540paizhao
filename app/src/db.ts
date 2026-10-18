@@ -21,7 +21,10 @@ export type Photo = { id: string; spotId: string; full: Blob; thumb: Blob }
 export type LegMode = 'transit' | 'walk' | 'ride'
 
 // 两点之间的一段路线；path 是 [lng, lat] 点列，用来画线
-export type Route = { mode: LegMode; duration: number; distance: number; path: [number, number][]; steps: string[] }
+// 一段路线里的每一截（换乘前后的步行、地铁、公交），地图上分别画线
+export type PartKind = 'walk' | 'subway' | 'bus' | 'ride'
+export type Part = { kind: PartKind; path: [number, number][]; label?: string }
+export type Route = { mode: LegMode; duration: number; distance: number; path: [number, number][]; steps: string[]; parts?: Part[] }
 export type LegCache = Route & { key: string; fetchedAt: number }
 export type Leg = Route & { from: Place; to: Place; ride?: boolean }
 

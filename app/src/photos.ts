@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { newId, type Photo } from './db'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db, newId, type Photo } from './db'
 
 // 原图不保存：大图长边 1600 够现场对照，缩略图给地图标记和列表用
 export async function makePhoto(file: Blob, spotId: string): Promise<Photo> {
@@ -44,4 +45,19 @@ export function useBlobUrl(blob?: Blob) {
     return () => URL.revokeObjectURL(u)
   }, [blob])
   return url
+}
+
+// photoId → 缩略图 URL，给地图标记用（标记是 HTML 字符串，不能用组件）
+export function useThumbUrls(photoIds: string[]) {
+  const key = photoIds.join(',')
+  const photos = useLiveQuery(() => db.photos.bulkGet(key ? key.split(',') : []), [key])
+  const [urls, setUrls] = useState<Map<string, string>>()
+  useEffect(() => {
+    if (!photos) return
+    const m = new Map<string, string>()
+    for (const p of photos) if (p) m.set(p.id, URL.createObjectURL(p.thumb))
+    setUrls(m)
+    return () => m.forEach((u) => URL.revokeObjectURL(u))
+  }, [photos])
+  return urls
 }

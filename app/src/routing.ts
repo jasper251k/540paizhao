@@ -1,9 +1,10 @@
-import { db, type Day, type Leg, type LegMode, type Place, type Route, type Spot } from './db'
+import { db, type Day, type Leg, type LegMode, type Part, type PartKind, type Place, type Route, type Spot } from './db'
 import type { AMapNS } from './amap'
 
 type LL = { lng: number; lat: number }
 
-const keyOf = (p: LL) => `${p.lng.toFixed(5)},${p.lat.toFixed(5)}`
+// 缓存格式变了就改版本号，旧缓存自然失效
+const keyOf = (p: LL) => `v2:${p.lng.toFixed(5)},${p.lat.toFixed(5)}`
 const CACHE_TTL = 30 * 24 * 3600 * 1000
 // 短于这个距离直接走路，不查地铁
 const WALK_ONLY_M = 1000
@@ -62,28 +63,56 @@ async function query(AMap: AMapNS, mode: LegMode, a: LL, b: LL): Promise<Route |
   if (mode === 'transit') {
     const plan = r.plans?.[0]
     if (!plan) return null
+    const parts: Part[] = plan.segments
+      .map((seg: AMapNS) => {
+        const t = seg.transit ?? {}
+        let p = toPath(t.path)
+        if (!p.length) p = (t.steps ?? []).flatMap((s: AMapNS) => toPath(s.path))
+        const kind: PartKind =
+          seg.transit_mode === 'WALK' ? 'walk' : /SUBWAY|METRO/.test(seg.transit_mode) ? 'subway' : 'bus'
+        const line = t.lines?.[0]?.name?.replace(/\(.*\)$/, '')
+        const label = kind !== 'walk' && line ? `${line} · ${t.on_station?.name ?? ''}上车` : undefined
+        return { kind, path: p, label }
+      })
+      .filter((p: Part) => p.path.length > 1)
     let path = toPath(plan.path)
-    if (!path.length) path = plan.segments.flatMap((s: AMapNS) => toPath(s.transit?.path))
+    if (!path.length) path = parts.flatMap((p) => p.path)
     return {
       mode,
       duration: plan.time,
       distance: plan.distance,
       path,
       steps: plan.segments.map(describe).filter(Boolean),
+      parts,
     }
   }
   const route = r.routes?.[0]
   if (!route) return null
+  const path = (route.steps ?? route.rides ?? []).flatMap((s: AMapNS) => toPath(s.path))
   return {
     mode,
     duration: route.time,
     distance: route.distance,
-    path: (route.steps ?? route.rides ?? []).flatMap((s: AMapNS) => toPath(s.path)),
+    path,
     steps: [`${mode === 'walk' ? '步行' : '骑行'} ${fmtDist(route.distance)}`],
+    parts: [{ kind: mode === 'walk' ? 'walk' : 'ride', path }],
   }
 }
 
-const pick = (c: Route): Route => ({ mode: c.mode, duration: c.duration, distance: c.distance, path: c.path, steps: c.steps })
+const pick = (c: Route): Route => ({
+  mode: c.mode,
+  duration: c.duration,
+  distance: c.distance,
+  path: c.path,
+  steps: c.steps,
+  parts: c.parts,
+})
+
+// 旧行程存的路线没有 parts，按整段的方式画
+export function partsOf(r: Route): Part[] {
+  if (r.parts?.length) return r.parts
+  return [{ kind: r.mode === 'transit' ? 'subway' : r.mode, path: r.path }]
+}
 
 // auto：近的走路，远的地铁；ride：骑车
 export async function getRoute(AMap: AMapNS, a: LL, b: LL, want: 'auto' | 'ride'): Promise<Route> {
