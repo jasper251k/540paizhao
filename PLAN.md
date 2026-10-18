@@ -148,3 +148,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 2026-10-18：步骤 1 代码完成，在 `app/` 目录（Vite + React + TS + Dexie）。文件：`src/db.ts`（数据表）、`src/amap.ts`（加载高德）、`src/pages/Settings.tsx`、`src/pages/Home.tsx`（地图、选点模式、列表、长按/右键新建）、`src/components/PlaceSearch.tsx`、`src/components/SpotEditor.tsx`（名字、小红书链接、备注、标签、已拍、删除）。类型检查通过，待用户手机实测。启动：`cd app && npx vite --host`。
 - 2026-10-18：步骤 1 用户实测通过。用户要求去掉小红书链接，只上传参考图（已从数据结构删掉 xhsUrl）。
 - 2026-10-18：步骤 2 代码完成。`src/photos.ts`（压缩、useBlobUrl）、`SpotEditor` 加选图 / 删图 / 设封面、新增 `SpotViewer`（点机位先看大图，左右滑，点图全屏，「拍完了」按钮，再点「编辑」）。地图标记和列表显示封面缩略图，已拍的变灰。待手机实测。
+- 2026-10-18：已提前部署（局域网访问不通：电脑开着 VPN 类隧道 utun6 抢了默认路由）。公开仓库 github.com/jasper251k/540paizhao，网址 https://jasper251k.github.io/540paizhao/ 。以后改完运行 `./deploy.sh` 发布（构建后强推 gh-pages 分支）。`vite.config.ts` 构建时 base 为 `/540paizhao/`。
