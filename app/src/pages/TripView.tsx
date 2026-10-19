@@ -1,13 +1,14 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type Day, type Leg, type PartKind, type Settings, type Spot } from '../db'
-import { useAMap, SHANGHAI, type AMapNS } from '../amap'
+import { useAMap, mapStyle, SHANGHAI, type AMapNS } from '../amap'
 import { dayTotal, fmtDist, fmtDur, getRoute, navUrl, partsOf } from '../routing'
 import { useThumbUrls } from '../photos'
 import SpotViewer from '../components/SpotViewer'
 import SpotEditor, { type Draft } from '../components/SpotEditor'
 import Thumb from '../components/Thumb'
 import TripEditor from '../components/TripEditor'
+import Icon from '../components/Icon'
 
 const LINE_COLOR = { transit: '#2f6fed', walk: '#34a853', ride: '#f29900' }
 const PART_STYLE: Record<PartKind, { color: string; w: number; dashed?: boolean }> = {
@@ -59,7 +60,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   const hasDay = !!day
   useEffect(() => {
     if (!AMap || !hasDay || !mapEl.current || mapRef.current) return
-    mapRef.current = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI })
+    mapRef.current = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI, mapStyle: mapStyle() })
     mapRef.current.on('click', () => setOpenSpot(null))
     return () => {
       mapRef.current?.destroy()
@@ -308,7 +309,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
       <div ref={mapEl} className="map" />
       <header className="topbar">
         <button className="btn-text" onClick={onBack}>
-          ‹ 返回
+          <Icon name="back" size={22} />返回
         </button>
         <div className="brand">{trip.title}</div>
         <button className="btn-text" onClick={() => setEditingTrip(true)} disabled={!AMap}>
@@ -320,9 +321,11 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
       {step === null ? (
         <div className="map-tools">
           <button className="fit-btn" onClick={play}>
-            ▶ 播放路线
+            <Icon name="play" size={13} />
+            播放路线
           </button>
           <button className="fit-btn" onClick={() => focusLeg(0)}>
+            <Icon name="steps" size={15} />
             一段段看
           </button>
           <button
@@ -332,6 +335,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
               setOpenSpot(null)
             }}
           >
+            <Icon name="photo" size={15} />
             {showPhotos ? '收起照片' : '显示照片'}
           </button>
         </div>
@@ -462,7 +466,7 @@ function StepBar({
   const n = day.spotIds.length
   const name = (i: number) => (i === 0 ? day.start.name : i === n + 1 ? day.end.name : (spots?.get(day.spotIds[i - 1])?.name ?? ''))
   const tag = (i: number) => (i === 0 ? '起' : i === n + 1 ? '终' : String(i))
-  const icon = { transit: '🚇', walk: '🚶', ride: '🚲' }[leg.mode]
+  const icon = <span className="step-mode"><Icon name={leg.mode} size={16} /></span>
   return (
     <div className="step-bar">
       <div className="step-top">
@@ -554,7 +558,7 @@ function LegRow({
   onRide: () => void
   onShow: () => void
 }) {
-  const icon = { transit: '🚇', walk: '🚶', ride: '🚲' }[leg.mode]
+  const icon = <Icon name={leg.mode} size={18} />
   return (
     <li className={`leg ${active ? 'leg-active' : ''}`} onClick={onShow}>
       <div className="leg-line" style={{ background: LINE_COLOR[leg.mode] }} />
@@ -569,10 +573,10 @@ function LegRow({
         ))}
         <div className="leg-actions" onClick={(e) => e.stopPropagation()}>
           <a className="chip" href={navUrl(leg)} target="_blank" rel="noreferrer">
-            高德导航
+            <Icon name="nav" size={13} /> 高德导航
           </a>
           <button className={`chip ${leg.ride ? 'on' : ''}`} onClick={onRide} disabled={busy}>
-            {busy ? '查询中…' : leg.ride ? '🚲 骑车（点击改回）' : '改骑车'}
+            {busy ? '查询中…' : leg.ride ? '骑车中 · 改回' : '改骑车'}
           </button>
         </div>
       </div>

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type Settings, type Spot } from '../db'
-import { loadAMap, SHANGHAI, type AMapNS } from '../amap'
+import { loadAMap, mapStyle, SHANGHAI, type AMapNS } from '../amap'
 import PlaceSearch, { type PickedPlace } from '../components/PlaceSearch'
 import SpotEditor, { type Draft } from '../components/SpotEditor'
 import SpotViewer from '../components/SpotViewer'
 import { useBlobUrl } from '../photos'
+import Icon from '../components/Icon'
 
 type Mode = 'browse' | 'pick'
 
@@ -55,7 +56,7 @@ export default function Home({
   // 初始化地图
   useEffect(() => {
     if (!AMap || !mapEl.current || mapRef.current) return
-    const map = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI, resizeEnable: true })
+    const map = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI, resizeEnable: true, mapStyle: mapStyle() })
     map.addControl(new AMap.Scale())
     mapRef.current = map
 
@@ -181,7 +182,7 @@ export default function Home({
           行程
         </button>
         <button className="icon-btn" onClick={onOpenSettings} aria-label="设置">
-          ⚙︎
+          <Icon name="gear" size={22} />
         </button>
       </header>
 
@@ -222,11 +223,12 @@ export default function Home({
                 setOpenSpot(null)
               }}
             >
+              <Icon name="photo" size={15} />
               {showPhotos ? '收起照片' : '显示照片'}
             </button>
           </div>
           <button className="fab" onClick={() => setMode('pick')} disabled={!AMap} aria-label="添加机位">
-            +
+            <Icon name="plus" size={28} />
           </button>
         </>
       )}

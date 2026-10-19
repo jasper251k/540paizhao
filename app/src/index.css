@@ -1,16 +1,43 @@
+/* 配色参照 iOS 系统色：浅色 / 深色自动切换 */
 :root {
-  --bg: #f6f6f4;
+  --bg: #f2f2f7;
   --card: #ffffff;
-  --text: #1c1c1e;
-  --sub: #8a8a8e;
-  --line: #e5e5e5;
-  --accent: #ff4d4f;
-  --shot: #9a9a9e;
-  --radius: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  --text: #000000;
+  --sub: rgba(60, 60, 67, 0.6);
+  --line: rgba(60, 60, 67, 0.14);
+  --tint: #007aff;
+  --accent: #ff3b30;
+  --shot: #aeaeb2;
+  --seg: rgba(118, 118, 128, 0.12);
+  --bar: rgba(249, 249, 249, 0.78);
+  --fill: rgba(118, 118, 128, 0.12);
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
   color: var(--text);
   background: var(--bg);
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #ffffff;
+    --sub: rgba(235, 235, 245, 0.6);
+    --line: rgba(84, 84, 88, 0.6);
+    --tint: #0a84ff;
+    --accent: #ff453a;
+    --shot: #636366;
+    --seg: rgba(118, 118, 128, 0.24);
+    --bar: rgba(30, 30, 30, 0.75);
+    --fill: rgba(118, 118, 128, 0.24);
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+body {
+  background: var(--bg);
 }
 
 * {
@@ -45,7 +72,7 @@ button {
   outline: none;
 }
 .input:focus {
-  border-color: var(--text);
+  border-color: var(--tint);
 }
 textarea.input {
   resize: none;
@@ -71,7 +98,7 @@ textarea.input {
   font-size: 16px;
 }
 .btn-primary {
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
 }
 .btn-ghost {
@@ -84,7 +111,7 @@ textarea.input {
   border: 1px solid var(--line);
 }
 .btn-text {
-  color: #2f6fed;
+  color: var(--tint);
   padding: 6px 4px;
   font-size: 15px;
   text-decoration: none;
@@ -128,9 +155,9 @@ textarea.input {
   font-size: 14px;
 }
 .chip.on {
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
-  border-color: var(--text);
+  border-color: var(--tint);
 }
 .tags {
   display: flex;
@@ -140,7 +167,7 @@ textarea.input {
 
 .seg {
   display: flex;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--seg);
   border-radius: 10px;
   padding: 2px;
 }
@@ -243,7 +270,7 @@ textarea.input {
   justify-content: space-between;
   gap: 8px;
   padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--bar);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -264,7 +291,7 @@ textarea.input {
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 30px;
   line-height: 1;
@@ -438,7 +465,7 @@ textarea.input {
   width: 38px;
   height: 5px;
   border-radius: 3px;
-  background: #d0d0d0;
+  background: var(--line);
   margin: 0 auto 4px;
 }
 .sheet-actions {
@@ -491,7 +518,7 @@ textarea.input {
   object-fit: cover;
 }
 .thumb-add {
-  border: 1.5px dashed #c8c8c8;
+  border: 1.5px dashed var(--line);
   color: var(--sub);
   font-size: 14px;
 }
@@ -560,7 +587,7 @@ textarea.input {
 }
 .viewer-empty {
   height: 120px;
-  border: 1.5px dashed #c8c8c8;
+  border: 1.5px dashed var(--line);
   border-radius: 12px;
   color: var(--sub);
   margin-top: 4px;
@@ -593,7 +620,7 @@ textarea.input {
 .btn-pill {
   padding: 6px 12px;
   border-radius: 999px;
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -615,7 +642,7 @@ textarea.input {
   height: 22px;
   flex: none;
   border-radius: 50%;
-  border: 1.5px solid #c8c8c8;
+  border: 1.5px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -623,8 +650,8 @@ textarea.input {
   color: #fff;
 }
 .is-picked .check {
-  background: var(--text);
-  border-color: var(--text);
+  background: var(--tint);
+  border-color: var(--tint);
 }
 .seg-day button {
   padding: 4px 10px;
@@ -657,7 +684,7 @@ textarea.input {
 }
 
 .endpoint {
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -739,7 +766,7 @@ textarea.input {
   justify-content: center;
 }
 .endpoint-dot {
-  background: var(--text);
+  background: var(--tint);
 }
 .stop-name {
   flex: 1;
@@ -772,7 +799,7 @@ textarea.input {
 }
 .leg-step {
   font-size: 13px;
-  color: #555;
+  color: var(--sub);
   margin-top: 3px;
   line-height: 1.4;
 }
@@ -831,7 +858,7 @@ textarea.input {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 13px;
   display: flex;
@@ -895,7 +922,7 @@ textarea.input {
 }
 .legend-toggle {
   margin-left: auto;
-  color: #2f6fed;
+  color: var(--tint);
   font-weight: 600;
 }
 .stop-strip {
@@ -915,7 +942,7 @@ textarea.input {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 12px;
   display: flex;
@@ -1017,7 +1044,7 @@ textarea.input {
   height: 22px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
   font-size: 12px;
   display: flex;
@@ -1082,6 +1109,370 @@ textarea.input {
   background: var(--shot);
 }
 .fit-btn.on {
-  background: var(--text);
+  background: var(--tint);
   color: #fff;
+}
+
+
+/* ================= 苹果风格细化 ================= */
+h1, h2, .brand, .tip-name, .route-summary, .step-route {
+  letter-spacing: -0.01em;
+}
+.page-head h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 4px 0 12px;
+}
+.page-head {
+  flex-wrap: wrap;
+}
+.page-head .btn-text + h1 {
+  flex-basis: 100%;
+}
+.brand {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* 毛玻璃顶栏、浮动按钮、底部面板 */
+.topbar {
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--line);
+  min-height: 52px;
+}
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tint);
+}
+.btn-pill {
+  background: var(--fill);
+  color: var(--tint);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 6px 14px;
+}
+.fit-btn {
+  background: var(--bar);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 8px 13px;
+  border: 0.5px solid var(--line);
+  box-shadow: var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.fit-btn.on {
+  background: var(--tint);
+  color: #fff;
+  border-color: transparent;
+}
+.map-tools {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  left: 12px;
+}
+.fab {
+  background: var(--tint);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.35);
+}
+.route-panel {
+  background: var(--bar);
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  border-top: 0.5px solid var(--line);
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+}
+.route-summary {
+  font-size: 17px;
+  font-weight: 600;
+}
+.step-bar {
+  background: var(--bar);
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  border: 0.5px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.empty-hint, .toast {
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+.empty-hint {
+  background: var(--bar);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* 按钮 */
+.btn-primary, .btn-ghost, .btn-danger {
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 14px 18px;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.btn-primary:active, .btn-ghost:active, .btn-danger:active, .fab:active, .fit-btn:active, .chip:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+.btn-ghost, .btn-danger {
+  background: var(--fill);
+  border: 0;
+  color: var(--tint);
+}
+.btn-danger {
+  color: var(--accent);
+}
+.shot-on {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+}
+.btn-text {
+  font-size: 17px;
+}
+.chip {
+  background: var(--fill);
+  border: 0;
+  color: var(--text);
+  font-weight: 500;
+}
+.chip.on {
+  color: #fff;
+}
+.leg-actions .chip, .step-nav .chip {
+  color: var(--tint);
+}
+.leg-actions .chip.on {
+  background: var(--tint);
+  color: #fff;
+}
+
+/* 输入框：系统填充底色，无边框 */
+.input {
+  background: var(--fill);
+  border: 0;
+  border-radius: 10px;
+  color: var(--text);
+  padding: 11px 12px;
+}
+.input:focus {
+  box-shadow: 0 0 0 2px var(--tint) inset;
+}
+.card .input {
+  background: var(--bg);
+}
+.field > span {
+  font-size: 13px;
+  text-transform: none;
+  color: var(--sub);
+  margin-left: 2px;
+}
+.card {
+  border-radius: 14px;
+  padding: 6px 16px;
+  margin: 10px 0;
+}
+.hint {
+  font-size: 15px;
+}
+.section-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--sub);
+  margin: 22px 16px 6px;
+  text-transform: uppercase;
+}
+
+/* 分段控件 */
+.seg {
+  border-radius: 9px;
+  padding: 2px;
+}
+.seg button {
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.15s ease;
+}
+.seg button.on {
+  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 0.5px 1.5px rgba(0, 0, 0, 0.12);
+}
+@media (prefers-color-scheme: dark) {
+  .seg button.on {
+    background: #636366;
+  }
+}
+
+/* 分组列表：一整块圆角卡片，行之间用细分隔线 */
+.spot-list {
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 8px 0 16px;
+}
+.spot-list:empty {
+  display: none;
+}
+.spot-list li {
+  border-radius: 0;
+  margin: 0;
+  padding: 10px 16px;
+  position: relative;
+  min-height: 64px;
+}
+.spot-list li + li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 72px;
+  border-top: 0.5px solid var(--line);
+}
+.spot-list li:active {
+  background: var(--fill);
+}
+.list-thumb {
+  border-radius: 8px;
+  background: var(--fill);
+}
+.tip-name {
+  font-size: 17px;
+  font-weight: 400;
+}
+.tip-sub {
+  font-size: 13px;
+}
+.tag {
+  background: rgba(255, 149, 0, 0.15);
+  color: #ff9500;
+  font-weight: 500;
+  border-radius: 5px;
+}
+
+/* 底部弹层 */
+.sheet-mask {
+  background: rgba(0, 0, 0, 0.3);
+  animation: fade-in 0.2s ease;
+}
+.sheet {
+  border-radius: 22px 22px 0 0;
+  padding: 8px 20px calc(env(safe-area-inset-bottom) + 20px);
+  animation: sheet-up 0.32s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.sheet h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 10px 0 4px;
+}
+.sheet-grip {
+  width: 36px;
+  height: 5px;
+  margin: 2px auto 6px;
+}
+.viewer-item img {
+  border-radius: 14px;
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.progress-box {
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  font-weight: 500;
+}
+
+/* 地图标记 */
+.pin {
+  border-radius: 10px;
+  font-size: 12px;
+  padding: 5px 9px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.dot-pin, .stop-dot, .num-pin {
+  background: var(--accent);
+}
+.endpoint, .stop-dot.endpoint-dot, .step-tag, .photo-pin b, .strip-item b {
+  background: #1c1c1e;
+  color: #fff;
+}
+.leg-badge {
+  background: var(--card);
+  color: var(--text);
+  border: 0;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+  font-weight: 600;
+}
+.line-label {
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* 行程列表 */
+.stop {
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.leg {
+  padding: 10px 6px 10px 26px;
+}
+.leg-title {
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.leg-title svg, .step-mode svg {
+  color: var(--sub);
+  flex: none;
+}
+.step-mode {
+  display: inline-flex;
+  vertical-align: -3px;
+  margin-right: 2px;
+}
+.legend {
+  font-size: 12px;
+}
+.legend-toggle {
+  color: var(--tint);
+  font-weight: 500;
+}
+.bottom-bar {
+  background: linear-gradient(transparent, var(--bg) 35%);
+}
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
+.btn-text svg {
+  margin-left: -6px;
+}
+.leg-actions .chip, .step-nav .chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }

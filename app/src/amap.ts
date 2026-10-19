@@ -39,3 +39,8 @@ export function useAMap({ amapKey, amapSecurityCode }: { amapKey: string; amapSe
   }, [amapKey, amapSecurityCode])
   return [AMap, error] as const
 }
+
+// 浅色用「远山黛」淡雅底图，深色模式用「幻影黑」
+export function mapStyle() {
+  return matchMedia('(prefers-color-scheme: dark)').matches ? 'amap://styles/dark' : 'amap://styles/whitesmoke'
+}

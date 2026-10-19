@@ -5,6 +5,7 @@ import { useAMap, type AMapNS } from '../amap'
 import { planDay } from '../routing'
 import PlaceSearch from '../components/PlaceSearch'
 import Thumb from '../components/Thumb'
+import Icon from '../components/Icon'
 
 const defaultTitle = () => {
   const d = new Date()
@@ -70,7 +71,7 @@ export default function Planner({
     <div className="page">
       <header className="page-head">
         <button className="btn-text" onClick={onBack}>
-          ‹ 返回
+          <Icon name="back" size={22} />返回
         </button>
         <h1>新建行程</h1>
       </header>

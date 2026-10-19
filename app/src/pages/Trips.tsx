@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type Settings } from '../db'
 import { dayTotal, fmtDur } from '../routing'
+import Icon from '../components/Icon'
 
 export default function Trips({
   settings,
@@ -19,7 +20,7 @@ export default function Trips({
     <div className="page">
       <header className="page-head">
         <button className="btn-text" onClick={onBack}>
-          ‹ 返回
+          <Icon name="back" size={22} />返回
         </button>
         <h1>行程</h1>
       </header>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { db, type Settings as S } from '../db'
 import { loadAMap, type AMapNS } from '../amap'
 import PlaceSearch from '../components/PlaceSearch'
+import Icon from '../components/Icon'
 
 export default function Settings({ settings, onClose }: { settings: S | null; onClose?: () => void }) {
   const [amapKey, setKey] = useState(settings?.amapKey ?? '')
@@ -36,7 +37,7 @@ export default function Settings({ settings, onClose }: { settings: S | null; on
       <header className="page-head">
         {onClose && (
           <button className="btn-text" onClick={onClose}>
-            ‹ 返回
+            <Icon name="back" size={22} />返回
           </button>
         )}
         <h1>设置</h1>
