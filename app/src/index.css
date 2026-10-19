@@ -944,3 +944,14 @@ textarea.input {
 .leg-active {
   background: rgba(47, 111, 237, 0.08);
 }
+.trip-edit-days {
+  margin: 10px 0 0;
+}
+.trip-delete {
+  text-align: center;
+  padding-top: 12px;
+}
+.sheet .spot-list li .btn-text {
+  flex: none;
+  font-size: 14px;
+}

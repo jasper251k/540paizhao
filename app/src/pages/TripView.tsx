@@ -7,6 +7,7 @@ import { useThumbUrls } from '../photos'
 import SpotViewer from '../components/SpotViewer'
 import SpotEditor, { type Draft } from '../components/SpotEditor'
 import Thumb from '../components/Thumb'
+import TripEditor from '../components/TripEditor'
 
 const LINE_COLOR = { transit: '#2f6fed', walk: '#34a853', ride: '#f29900' }
 const PART_STYLE: Record<PartKind, { color: string; w: number; dashed?: boolean }> = {
@@ -27,6 +28,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   const [dayIdx, setDayIdx] = useState(0)
   const [viewingId, setViewingId] = useState<string | null>(null)
   const [editing, setEditing] = useState<Draft | null>(null)
+  const [editingTrip, setEditingTrip] = useState(false)
   const [busyLeg, setBusyLeg] = useState<number | null>(null)
   // 默认收起列表，地图占大部分屏幕
   const [expanded, setExpanded] = useState(false)
@@ -161,7 +163,12 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   }
 
   if (trip === undefined) return null
-  if (!trip || !day) return null
+  if (!trip) return null
+  // 编辑后天数变少，当前选中的那天可能不存在了
+  if (!day) {
+    if (dayIdx > 0) setDayIdx(0)
+    return null
+  }
 
   // 填了出发时间就粗略估算到达时间：路上用时 + 每个机位停留
   const arrive: (string | null)[] = []
@@ -184,8 +191,8 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
           ‹ 返回
         </button>
         <div className="brand">{trip.title}</div>
-        <button className="btn-text danger-text" onClick={remove}>
-          删除
+        <button className="btn-text" onClick={() => setEditingTrip(true)} disabled={!AMap}>
+          编辑
         </button>
       </header>
       {error && <div className="toast">{error}</div>}
@@ -263,6 +270,11 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
               </Fragment>
             )
           })}
+          <li className="trip-delete">
+            <button className="btn-text danger-text" onClick={remove}>
+              删除这个行程
+            </button>
+          </li>
         </ol>
       </div>
 
@@ -270,6 +282,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
         <SpotViewer spot={viewing} onClose={() => setViewingId(null)} onEdit={() => setEditing({ ...viewing })} />
       )}
       {editing && <SpotEditor draft={editing} onClose={() => setEditing(null)} />}
+      {editingTrip && AMap && <TripEditor AMap={AMap} trip={trip} dayIdx={dayIdx} onClose={() => setEditingTrip(false)} />}
     </div>
   )
 }
