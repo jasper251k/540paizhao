@@ -30,6 +30,11 @@ export default function Home({
   const [viewingId, setViewingId] = useState<string | null>(null)
   // 选点模式下搜索选中的地名，确认时直接用，不再逆地理
   const pickedRef = useRef<PickedPlace | null>(null)
+  // 地图上默认只显示小标记，点一下弹出参考图；也可以一键全部显示
+  const [showPhotos, setShowPhotos] = useState(false)
+  const [openSpot, setOpenSpot] = useState<string | null>(null)
+  const pinState = useRef({ showPhotos, openSpot })
+  pinState.current = { showPhotos, openSpot }
   const modeRef = useRef(mode)
   modeRef.current = mode
 
@@ -68,6 +73,7 @@ export default function Home({
     map.on('dragstart', cancel)
     map.on('zoomstart', cancel)
     // 电脑上右键代替长按
+    map.on('click', () => setOpenSpot(null))
     map.on('rightclick', (e: AMapNS) => modeRef.current === 'browse' && startDraftAt(e.lnglat.lng, e.lnglat.lat))
     return () => {
       map.destroy()
@@ -100,23 +106,31 @@ export default function Home({
     }
     for (const s of spots) {
       const url = urls.get(s.photoIds[0])
-      const content = `<div class="pin ${s.status === 'shot' ? 'pin-shot' : ''}">${
-        url ? `<img src="${url}" alt="">` : ''
-      }<span>${escapeHtml(s.name)}</span></div>`
+      const open = showPhotos || openSpot === s.id
+      const shot = s.status === 'shot' ? 'pin-shot' : ''
+      const content = open
+        ? `<div class="pin ${shot}">${url ? `<img src="${url}" alt="">` : ''}<span>${escapeHtml(s.name)}</span></div>`
+        : `<div class="pin ${shot}"><span>${escapeHtml(s.name)}</span></div>`
+      // 收起时点一下弹出参考图，已弹出再点打开详情
+      const onClick = () => {
+        const st = pinState.current
+        if (st.showPhotos || st.openSpot === s.id) setViewingId(s.id)
+        else setOpenSpot(s.id)
+      }
       let m = markers.get(s.id)
       if (!m) {
         m = new AMap.Marker({ position: [s.lng, s.lat], anchor: 'bottom-center', content })
-        m.on('click', () => setViewingId(s.id))
         map.add(m)
         markers.set(s.id, m)
       } else {
         m.setPosition([s.lng, s.lat])
         m.setContent(content)
         m.off('click')
-        m.on('click', () => setViewingId(s.id))
       }
+      m.on('click', onClick)
+      m.setzIndex(openSpot === s.id ? 300 : 100)
     }
-  }, [AMap, spots, covers])
+  }, [AMap, spots, covers, showPhotos, openSpot])
 
   function startDraftAt(lng: number, lat: number, place?: PickedPlace) {
     const draft: Draft = { name: place?.name ?? '', address: place?.address, lng, lat, tags: [], status: 'todo' }
@@ -200,6 +214,17 @@ export default function Home({
       {mode === 'browse' && view === 'map' && (
         <>
           {spots?.length === 0 && <div className="empty-hint">点右下角 + 或长按地图，添加第一个机位</div>}
+          <div className="map-tools">
+            <button
+              className={`fit-btn ${showPhotos ? 'on' : ''}`}
+              onClick={() => {
+                setShowPhotos(!showPhotos)
+                setOpenSpot(null)
+              }}
+            >
+              {showPhotos ? '收起照片' : '显示照片'}
+            </button>
+          </div>
           <button className="fab" onClick={() => setMode('pick')} disabled={!AMap} aria-label="添加机位">
             +
           </button>
