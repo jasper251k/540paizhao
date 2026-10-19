@@ -168,3 +168,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 改代码在 `app/`；本地检查 `cd app && npx tsc -b && npx eslint src`。
 - 发布：根目录运行 `./deploy.sh`（构建并推送 gh-pages），约 1 分钟后手机刷新即可；PWA 会自动更新。代码另外 `git push` 到 main。
 - 用户只在 iPhone 主屏幕 App 上用，数据存在手机本地（IndexedDB），改数据结构时要做 Dexie 版本升级，别让旧数据丢失。
+- 2026-10-19：新增根目录 CLAUDE.md（新对话自动加载的简短索引：项目概况、流程、代码地图、用户偏好、待做想法）。约定每次收尾在本节追加进度。
