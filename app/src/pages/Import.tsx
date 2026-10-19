@@ -3,34 +3,11 @@ import { db, newId, type Photo, type Settings, type Spot } from '../db'
 import { useAMap, type AMapNS } from '../amap'
 import { makePhoto, useBlobUrl } from '../photos'
 import Icon from '../components/Icon'
+import { parseGroups } from '../parseGroups'
 
 type Img = Pick<Photo, 'full' | 'thumb'>
 type Cand = { name: string; address: string; lng: number; lat: number }
 type Group = { name: string; nums: number[]; cands: Cand[]; chosen: number; searching: boolean }
-
-// 一行一个地点：「1-3 武康大楼」「4,5 外滩」「6 安福路」；也支持「、」「~」「到」
-const SPEC = /^\s*(\d+(?:\s*[-~—–到至]\s*\d+)?(?:\s*[,，、]\s*\d+(?:\s*[-~—–到至]\s*\d+)?)*)[\s:：]*(.+?)\s*$/
-
-function parseGroups(text: string, count: number) {
-  const groups: { name: string; nums: number[] }[] = []
-  const bad: string[] = []
-  for (const line of text.split('\n')) {
-    if (!line.trim()) continue
-    const m = line.match(SPEC)
-    if (!m) {
-      bad.push(line.trim())
-      continue
-    }
-    const nums: number[] = []
-    for (const part of m[1].split(/[,，、]/)) {
-      const [a, b] = part.split(/[-~—–到至]/).map((x) => parseInt(x, 10))
-      for (let i = Math.min(a, b ?? a); i <= Math.max(a, b ?? a); i++) if (i >= 1 && i <= count && !nums.includes(i)) nums.push(i)
-    }
-    if (nums.length) groups.push({ name: m[2], nums })
-    else bad.push(line.trim())
-  }
-  return { groups, bad }
-}
 
 function searchPlaces(AMap: AMapNS, kw: string): Promise<Cand[]> {
   return new Promise((resolve) => {
@@ -270,16 +247,26 @@ export default function Import({
         )}
       </section>
 
-      <div className="section-title">2 · 哪几张是哪里（一行一个）</div>
+      <div className="section-title">2 · 哪几张是哪里</div>
       <section className="card">
         <textarea
           className="input import-text"
           rows={5}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={'1-3 武康大楼\n4,5 外滩\n6 安福路'}
+          placeholder={'直接说就行，可以用语音输入：\n第一张到第三张是武康大楼，第四张到第六张是1691咖啡，剩下的是安福路'}
         />
-        {bad.length > 0 && <div className="tip-sub danger-text import-status">看不懂这几行：{bad.join(' / ')}</div>}
+        {parsed.length > 0 && (
+          <ul className="parse-preview">
+            {parsed.map((g, i) => (
+              <li key={i}>
+                <span className="parse-nums">{g.nums.join('、')}</span>
+                <span>{g.name}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {bad.length > 0 && <div className="tip-sub danger-text import-status">没看懂：{bad.join(' / ')}</div>}
         {imgs.length > 0 && unused.length > 0 && parsed.length > 0 && (
           <div className="tip-sub import-status">第 {unused.join('、')} 张还没分配，会被跳过</div>
         )}
