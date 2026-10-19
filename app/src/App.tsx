@@ -6,8 +6,15 @@ import Home from './pages/Home'
 import Trips from './pages/Trips'
 import Planner from './pages/Planner'
 import TripView from './pages/TripView'
+import Import from './pages/Import'
 
-type Screen = { name: 'home' } | { name: 'settings' } | { name: 'trips' } | { name: 'plan' } | { name: 'trip'; id: string }
+type Screen =
+  | { name: 'home' }
+  | { name: 'settings' }
+  | { name: 'trips' }
+  | { name: 'plan'; preselect?: string[] }
+  | { name: 'trip'; id: string }
+  | { name: 'import' }
 
 export default function App() {
   // undefined = 还在读库，null = 第一次打开还没设置
@@ -34,10 +41,26 @@ export default function App() {
         />
       )
     case 'plan':
-      return <Planner settings={settings} onBack={() => go({ name: 'trips' })} onDone={(id) => go({ name: 'trip', id })} />
+      return (
+        <Planner
+          settings={settings}
+          preselect={screen.preselect}
+          onBack={() => go({ name: 'trips' })}
+          onDone={(id) => go({ name: 'trip', id })}
+        />
+      )
+    case 'import':
+      return <Import settings={settings} onBack={() => go({ name: 'home' })} onPlan={(ids) => go({ name: 'plan', preselect: ids })} />
     case 'trip':
       return <TripView settings={settings} tripId={screen.id} onBack={() => go({ name: 'trips' })} />
     default:
-      return <Home settings={settings} onOpenSettings={() => go({ name: 'settings' })} onOpenTrips={() => go({ name: 'trips' })} />
+      return (
+        <Home
+          settings={settings}
+          onOpenSettings={() => go({ name: 'settings' })}
+          onOpenTrips={() => go({ name: 'trips' })}
+          onImport={() => go({ name: 'import' })}
+        />
+      )
   }
 }

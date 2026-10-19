@@ -14,17 +14,19 @@ const defaultTitle = () => {
 
 export default function Planner({
   settings,
+  preselect,
   onBack,
   onDone,
 }: {
   settings: Settings
+  preselect?: string[]
   onBack: () => void
   onDone: (tripId: string) => void
 }) {
   const [AMap, error] = useAMap(settings)
   const spots = useLiveQuery(() => db.spots.where('status').equals('todo').reverse().sortBy('createdAt'))
   // 选中的机位 → 第几天
-  const [picked, setPicked] = useState<Record<string, 1 | 2>>({})
+  const [picked, setPicked] = useState<Record<string, 1 | 2>>(() => Object.fromEntries((preselect ?? []).map((id) => [id, 1 as const])))
   const [days, setDays] = useState<1 | 2 | null>(null)
   const [start, setStart] = useState<Place | undefined>(settings.lastStart ?? settings.home)
   const [end, setEnd] = useState<Place | undefined>(settings.home)

@@ -3,12 +3,39 @@ import { db, type Settings as S } from '../db'
 import { loadAMap, type AMapNS } from '../amap'
 import PlaceSearch from '../components/PlaceSearch'
 import Icon from '../components/Icon'
+import { exportBackup, importBackup } from '../backup'
 
 export default function Settings({ settings, onClose }: { settings: S | null; onClose?: () => void }) {
   const [amapKey, setKey] = useState(settings?.amapKey ?? '')
   const [code, setCode] = useState(settings?.amapSecurityCode ?? '')
   const [stay, setStay] = useState(settings?.defaultStayMin ?? 30)
   const [AMap, setAMap] = useState<AMapNS>(null)
+  const [busy, setBusy] = useState<string | null>(null)
+  const standalone = matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone
+
+  async function doExport() {
+    setBusy('正在打包…')
+    try {
+      await exportBackup()
+    } catch (e) {
+      alert((e as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function doImport(f?: File) {
+    if (!f) return
+    setBusy('正在导入…')
+    try {
+      const r = await importBackup(f)
+      alert(`导入完成：${r.spots} 个机位，${r.trips} 个行程`)
+    } catch (e) {
+      alert('导入失败：' + (e as Error).message)
+    } finally {
+      setBusy(null)
+    }
+  }
 
   // Key 已保存过才加载地图，用来搜家的地址
   useEffect(() => {
@@ -95,6 +122,24 @@ export default function Settings({ settings, onClose }: { settings: S | null; on
       <button className="btn-primary" onClick={save}>
         保存
       </button>
+
+      <div className="section-title">备份</div>
+      <section className="card">
+        <p className="hint">
+          数据只存在这台手机里。
+          {!standalone && '如果你刚把 540拍照 添加到主屏幕：先在这里「导出备份」，再从主屏幕图标打开、填好 Key 后「导入备份」，机位和照片就搬过去了。'}
+        </p>
+        <div className="backup-row">
+          <button className="btn-ghost" onClick={doExport} disabled={!!busy}>
+            导出备份
+          </button>
+          <label className={`btn-ghost ${busy || !settings ? 'disabled' : ''}`}>
+            导入备份
+            <input type="file" accept=".zip,application/zip" hidden disabled={!!busy || !settings} onChange={(e) => doImport(e.target.files?.[0])} />
+          </label>
+        </div>
+        {busy && <div className="tip-sub import-status">{busy}</div>}
+      </section>
     </div>
   )
 }

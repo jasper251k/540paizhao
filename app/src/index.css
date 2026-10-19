@@ -1476,3 +1476,110 @@ h1, h2, .brand, .tip-name, .route-summary, .step-route {
   justify-content: center;
   gap: 4px;
 }
+
+/* ---------- 批量导入 ---------- */
+.import-pick .photo-grid {
+  padding: 10px 0 4px;
+}
+.thumb-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--tint);
+  background: var(--fill);
+  border: 0;
+  font-size: 13px;
+}
+.num-thumb b {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.num-thumb.dim img {
+  opacity: 0.55;
+}
+.num-thumb.selected {
+  box-shadow: 0 0 0 3px var(--tint);
+}
+.num-thumb.selected b {
+  background: var(--tint);
+}
+.import-sel {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 8px;
+}
+.import-sel .btn-primary,
+.import-sel .btn-ghost {
+  flex: none;
+  padding: 10px 16px;
+  font-size: 15px;
+}
+.import-status {
+  margin: 4px 2px 10px;
+}
+.import-text {
+  margin: 10px 0;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.import-gap {
+  margin-top: 10px;
+}
+.import-group {
+  padding-top: 12px;
+}
+.import-thumbs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+.import-thumbs .thumb {
+  width: 56px;
+  height: 70px;
+  flex: none;
+}
+.cand-list {
+  list-style: none;
+  margin: 0 -16px;
+  padding: 0;
+}
+.cand-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 0.5px solid var(--line);
+}
+.cand-list li.on .check {
+  background: var(--tint);
+  border-color: var(--tint);
+}
+.cand-list .tip-name {
+  font-size: 15px;
+}
+.backup-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.backup-row > * {
+  flex: 1;
+  text-align: center;
+}
+.btn-ghost.disabled {
+  opacity: 0.4;
+}

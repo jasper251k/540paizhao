@@ -14,10 +14,12 @@ export default function Home({
   settings,
   onOpenSettings,
   onOpenTrips,
+  onImport,
 }: {
   settings: Settings
   onOpenSettings: () => void
   onOpenTrips: () => void
+  onImport: () => void
 }) {
   const mapEl = useRef<HTMLDivElement>(null)
   const mapRef = useRef<AMapNS>(null)
@@ -216,6 +218,10 @@ export default function Home({
         <>
           {spots?.length === 0 && <div className="empty-hint">点右下角 + 或长按地图，添加第一个机位</div>}
           <div className="map-tools">
+            <button className="fit-btn" onClick={onImport}>
+              <Icon name="photo" size={15} />
+              批量导入
+            </button>
             <button
               className={`fit-btn ${showPhotos ? 'on' : ''}`}
               onClick={() => {
