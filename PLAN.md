@@ -169,3 +169,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 发布：根目录运行 `./deploy.sh`（构建并推送 gh-pages），约 1 分钟后手机刷新即可；PWA 会自动更新。代码另外 `git push` 到 main。
 - 用户只在 iPhone 主屏幕 App 上用，数据存在手机本地（IndexedDB），改数据结构时要做 Dexie 版本升级，别让旧数据丢失。
 - 2026-10-19：新增根目录 CLAUDE.md（新对话自动加载的简短索引：项目概况、流程、代码地图、用户偏好、待做想法）。约定每次收尾在本节追加进度。
+- 2026-10-19：修 bug「新建行程无法下滑选机位」。原因：.page 是竖向 flex，带 overflow:hidden 的 .spot-list 被压缩进一屏。改 index.css：.page > * { flex-shrink: 0 }（同时惠及其他用 .page 的页面）。

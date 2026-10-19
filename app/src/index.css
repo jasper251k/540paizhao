@@ -204,6 +204,10 @@ textarea.input {
   display: flex;
   flex-direction: column;
 }
+/* 子元素不许被压缩，否则带 overflow:hidden 的列表会被挤进一屏、页面无法下滑 */
+.page > * {
+  flex-shrink: 0;
+}
 .page-head {
   display: flex;
   align-items: center;
