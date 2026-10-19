@@ -40,14 +40,16 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   const viewing = viewingId ? spots?.get(viewingId) : undefined
   const thumbs = useThumbUrls(day?.spotIds.map((id) => spots?.get(id)?.photoIds[0] ?? '').filter(Boolean) ?? [])
 
+  // 地图容器要等行程读出来才渲染；高德往往先加载好，所以也要等 hasDay
+  const hasDay = !!day
   useEffect(() => {
-    if (!AMap || !mapEl.current || mapRef.current) return
+    if (!AMap || !hasDay || !mapEl.current || mapRef.current) return
     mapRef.current = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI })
     return () => {
       mapRef.current?.destroy()
       mapRef.current = null
     }
-  }, [AMap])
+  }, [AMap, hasDay])
 
   // 画当天路线：每一截按地铁 / 公交 / 步行 / 骑车分颜色；机位直接显示参考图和序号
   useEffect(() => {
