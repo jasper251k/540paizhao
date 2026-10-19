@@ -5,6 +5,7 @@
 - 线上：https://jasper251k.github.io/540paizhao/ （仓库 jasper251k/540paizhao，公开）
 - 用户只在 iPhone 主屏幕 App 上用；数据存在手机本地（IndexedDB），不做云同步，暂不给朋友用。
 - 用户不写代码，按量付费：回复用中文、简短、少术语；大改动先说规模再做。
+- 用户只能在这台电脑的 VS Code 里用 Claude Code（走 API），用不了网页版或 App。所以发布就用本机 `./deploy.sh`，不需要 GitHub 自动发布。
 
 ## 新对话先看什么
 
