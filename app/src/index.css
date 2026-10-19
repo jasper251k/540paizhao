@@ -1050,3 +1050,38 @@ textarea.input {
 .step-nav .chip:disabled {
   opacity: 0.35;
 }
+
+/* 收起状态的机位：带尖角的序号圆标 */
+.dot-pin {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.dot-pin::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  margin-left: -5px;
+  border: 5px solid transparent;
+  border-bottom: 0;
+  border-top: 7px solid #fff;
+}
+.dot-pin.pin-shot {
+  background: var(--shot);
+}
+.fit-btn.on {
+  background: var(--text);
+  color: #fff;
+}

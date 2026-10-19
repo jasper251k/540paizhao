@@ -44,6 +44,12 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   const [step, setStep] = useState<number | null>(null)
   const [playing, setPlaying] = useState(false)
   const playToken = useRef(0)
+  // 地图上默认只显示序号，点一下才弹出参考图；也可以一键全部显示
+  const [showPhotos, setShowPhotos] = useState(false)
+  const [openSpot, setOpenSpot] = useState<string | null>(null)
+  const pinState = useRef({ showPhotos, openSpot })
+  pinState.current = { showPhotos, openSpot }
+  const spotMarkersRef = useRef<Map<string, { m: AMapNS; s: Spot; i: number; url?: string }>>(new Map())
 
   const day = trip?.days[dayIdx]
   const viewing = viewingId ? spots?.get(viewingId) : undefined
@@ -54,6 +60,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   useEffect(() => {
     if (!AMap || !hasDay || !mapEl.current || mapRef.current) return
     mapRef.current = new AMap.Map(mapEl.current, { zoom: 12, center: SHANGHAI })
+    mapRef.current.on('click', () => setOpenSpot(null))
     return () => {
       mapRef.current?.destroy()
       mapRef.current = null
@@ -134,27 +141,43 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
     marks.push(endpoint(day.start.lng, day.start.lat, same ? '起 / 终' : '起'))
     if (!same) marks.push(endpoint(day.end.lng, day.end.lat, '终'))
 
+    const spotMarkers = new Map<string, { m: AMapNS; s: Spot; i: number; url?: string }>()
     day.spotIds.forEach((id, i) => {
       const s = spots.get(id)
       if (!s) return
       const url = thumbs.get(s.photoIds[0])
+      const { showPhotos, openSpot } = pinState.current
       const m = new AMap.Marker({
         position: [s.lng, s.lat],
         anchor: 'bottom-center',
-        content: `<div class="photo-pin ${s.status === 'shot' ? 'pin-shot' : ''}">
-          <b>${i + 1}</b>${url ? `<img src="${url}" alt="">` : `<div class="photo-pin-empty">${escapeHtml(s.name)}</div>`}
-        </div>`,
+        content: pinHtml(s, i, url, showPhotos || openSpot === id),
         zIndex: 120 + i,
       })
-      m.on('click', () => setViewingId(s.id))
+      // 收起时点一下弹出参考图，已弹出再点打开大图
+      m.on('click', () => {
+        const st = pinState.current
+        if (st.showPhotos || st.openSpot === id) setViewingId(id)
+        else setOpenSpot(id)
+      })
       marks.push(m)
+      spotMarkers.set(id, { m, s, i, url })
     })
+    spotMarkersRef.current = spotMarkers
     map.add([...lines, ...marks])
     overlaysRef.current = [...lines, ...marks]
     fitAll()
     setStep(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [AMap, day, spots, thumbs])
+
+  // 切换显示照片 / 点开某个机位时只改标记内容，不重画路线
+  useEffect(() => {
+    for (const [id, { m, s, i, url }] of spotMarkersRef.current) {
+      const open = showPhotos || openSpot === id
+      m.setContent(pinHtml(s, i, url, open))
+      m.setzIndex(openSpot === id ? 300 : 120 + i)
+    }
+  }, [showPhotos, openSpot])
 
   // 逐段看：当前段正常显示，其他段变淡
   useEffect(() => {
@@ -301,6 +324,15 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
           </button>
           <button className="fit-btn" onClick={() => focusLeg(0)}>
             一段段看
+          </button>
+          <button
+            className={`fit-btn ${showPhotos ? 'on' : ''}`}
+            onClick={() => {
+              setShowPhotos(!showPhotos)
+              setOpenSpot(null)
+            }}
+          >
+            {showPhotos ? '收起照片' : '显示照片'}
           </button>
         </div>
       ) : (
@@ -546,6 +578,15 @@ function LegRow({
       </div>
     </li>
   )
+}
+
+// open：带参考图的大标记；否则只是带序号的小圆标
+function pinHtml(s: Spot, i: number, url: string | undefined, open: boolean) {
+  const shot = s.status === 'shot' ? 'pin-shot' : ''
+  if (!open) return `<div class="dot-pin ${shot}">${i + 1}</div>`
+  return `<div class="photo-pin ${shot}">
+    <b>${i + 1}</b>${url ? `<img src="${url}" alt="">` : `<div class="photo-pin-empty">${escapeHtml(s.name)}</div>`}
+  </div>`
 }
 
 function escapeHtml(s: string) {
