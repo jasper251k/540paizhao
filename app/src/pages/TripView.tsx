@@ -37,6 +37,13 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
   const mapRef = useRef<AMapNS>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const overlaysRef = useRef<AMapNS[]>([])
+  // 每段路线的线和线路名标记，逐段看时用来高亮 / 变淡
+  const legOverlaysRef = useRef<{ lines: AMapNS[]; labels: AMapNS[] }[]>([])
+  const dotRef = useRef<AMapNS>(null)
+  // 逐段看：当前第几段；null = 看全程
+  const [step, setStep] = useState<number | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const playToken = useRef(0)
 
   const day = trip?.days[dayIdx]
   const viewing = viewingId ? spots?.get(viewingId) : undefined
@@ -60,14 +67,18 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
     map.clearMap()
     const lines: AMapNS[] = []
     const marks: AMapNS[] = []
+    const perLeg: { lines: AMapNS[]; labels: AMapNS[] }[] = []
     day.legs.forEach((leg, li) => {
+      const own: { lines: AMapNS[]; labels: AMapNS[] } = { lines: [], labels: [] }
+      perLeg.push(own)
       for (const part of partsOf(leg)) {
         if (part.path.length < 2) continue
         const st = PART_STYLE[part.kind]
         // 白色描边垫底，线在任何底图上都看得清
-        lines.push(
-          new AMap.Polyline({ path: part.path, strokeColor: '#fff', strokeWeight: st.w + 4, strokeOpacity: 0.9, lineJoin: 'round', lineCap: 'round', zIndex: 50 }),
-        )
+        const under = new AMap.Polyline({ path: part.path, strokeColor: '#fff', strokeWeight: st.w + 4, strokeOpacity: 0.9, lineJoin: 'round', lineCap: 'round', zIndex: 50 })
+        under.on('click', () => focusLeg(li))
+        lines.push(under)
+        own.lines.push(under)
         const line = new AMap.Polyline({
           path: part.path,
           strokeColor: st.color,
@@ -82,19 +93,40 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
         })
         line.on('click', () => focusLeg(li))
         lines.push(line)
+        own.lines.push(line)
         // 地铁公交在上车点标出线路名
-        if (part.label)
-          marks.push(
-            new AMap.Marker({
-              position: part.path[0],
-              anchor: 'bottom-left',
-              offset: new AMap.Pixel(4, -4),
-              content: `<div class="line-label" style="background:${st.color}">${escapeHtml(part.label)}</div>`,
-              zIndex: 90,
-            }),
-          )
+        if (part.label) {
+          const lab = new AMap.Marker({
+            position: part.path[0],
+            anchor: 'bottom-left',
+            offset: new AMap.Pixel(4, -4),
+            content: `<div class="line-label" style="background:${st.color}">${escapeHtml(part.label)}</div>`,
+            zIndex: 90,
+          })
+          marks.push(lab)
+          own.labels.push(lab)
+        }
+      }
+      // 每段路中间标「1→2」，一眼看出这段是从哪到哪
+      const pts = legPath(leg)
+      if (pts.length > 1) {
+        const n = day.spotIds.length
+        const from = li === 0 ? '起' : String(li)
+        const to = li === n ? '终' : String(li + 1)
+        const badge = new AMap.Marker({
+          position: pointAt(pts, 0.5),
+          anchor: 'center',
+          content: `<div class="leg-badge">${from} → ${to}</div>`,
+          zIndex: 95,
+        })
+        badge.on('click', () => focusLeg(li))
+        marks.push(badge)
+        own.labels.push(badge)
       }
     })
+    legOverlaysRef.current = perLeg
+    dotRef.current = new AMap.Marker({ anchor: 'center', content: '<div class="flow-dot"></div>', zIndex: 200, visible: false, position: [day.start.lng, day.start.lat] })
+    marks.push(dotRef.current)
 
     const endpoint = (lng: number, lat: number, text: string) =>
       new AMap.Marker({ position: [lng, lat], anchor: 'center', content: `<div class="endpoint">${text}</div>`, zIndex: 100 })
@@ -120,8 +152,65 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
     map.add([...lines, ...marks])
     overlaysRef.current = [...lines, ...marks]
     fitAll()
+    setStep(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [AMap, day, spots, thumbs])
+
+  // 逐段看：当前段正常显示，其他段变淡
+  useEffect(() => {
+    legOverlaysRef.current.forEach((o, i) => {
+      const dim = step !== null && i !== step
+      for (const l of o.lines) l.setOptions({ strokeOpacity: dim ? 0.15 : l.getOptions().strokeColor === '#fff' ? 0.9 : 0.95 })
+      for (const m of o.labels) {
+        if (dim) m.hide()
+        else m.show()
+      }
+    })
+    if (step === null) dotRef.current?.hide()
+  }, [step])
+
+  // 播放：一段一段地让小圆点沿路线走过去
+  async function play() {
+    if (!day) return
+    const token = ++playToken.current
+    setPlaying(true)
+    setExpanded(false)
+    for (let i = 0; i < day.legs.length; i++) {
+      if (playToken.current !== token) return
+      focusLeg(i)
+      await sleep(600)
+      const ok = await runDot(legPath(day.legs[i]), 2200, token)
+      if (!ok) return
+      await sleep(300)
+    }
+    if (playToken.current !== token) return
+    setPlaying(false)
+    dotRef.current?.hide()
+    setStep(null)
+    fitAll()
+  }
+
+  function stopPlay() {
+    playToken.current++
+    setPlaying(false)
+  }
+
+  function runDot(pts: [number, number][], ms: number, token: number) {
+    const dot = dotRef.current
+    if (!dot || pts.length < 2) return Promise.resolve(true)
+    dot.show()
+    const t0 = performance.now()
+    return new Promise<boolean>((resolve) => {
+      const tick = (now: number) => {
+        if (playToken.current !== token) return resolve(false)
+        const k = Math.min(1, (now - t0) / ms)
+        dot.setPosition(pointAt(pts, k))
+        if (k < 1) requestAnimationFrame(tick)
+        else resolve(true)
+      }
+      requestAnimationFrame(tick)
+    })
+  }
 
   // 留出顶栏和底部面板的位置：[上, 下, 左, 右]
   function fitAll() {
@@ -136,8 +225,16 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
     if (pts.length < 2) return
     const panel = panelRef.current?.offsetHeight ?? 0
     const tmp = new AMap.Polyline({ path: pts })
-    mapRef.current?.setFitView([tmp], false, [110, panel + 20, 50, 50])
+    mapRef.current?.setFitView([tmp], false, [170, panel + 20, 50, 50])
     setActiveLeg(i)
+    setStep(i)
+  }
+
+  function exitStep() {
+    stopPlay()
+    setStep(null)
+    setActiveLeg(null)
+    fitAll()
   }
 
   async function toggleRide(i: number) {
@@ -197,9 +294,32 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
       </header>
       {error && <div className="toast">{error}</div>}
 
-      <button className="fit-btn" onClick={fitAll}>
-        看全程
-      </button>
+      {step === null ? (
+        <div className="map-tools">
+          <button className="fit-btn" onClick={play}>
+            ▶ 播放路线
+          </button>
+          <button className="fit-btn" onClick={() => focusLeg(0)}>
+            一段段看
+          </button>
+        </div>
+      ) : (
+        <StepBar
+          day={day}
+          step={step}
+          spots={spots}
+          playing={playing}
+          onPrev={() => {
+            stopPlay()
+            focusLeg(Math.max(0, step - 1))
+          }}
+          onNext={() => {
+            stopPlay()
+            focusLeg(Math.min(day.legs.length - 1, step + 1))
+          }}
+          onExit={exitStep}
+        />
+      )}
 
       <div ref={panelRef} className={`route-panel ${expanded ? '' : 'collapsed'}`}>
         <div className="route-head" onClick={() => setExpanded(!expanded)}>
@@ -288,6 +408,90 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
 }
 
 // 收起时底部一排参考图，按顺序，点开看大图
+// 逐段看时顶部显示：这是第几段、从哪到哪、怎么走
+function StepBar({
+  day,
+  step,
+  spots,
+  playing,
+  onPrev,
+  onNext,
+  onExit,
+}: {
+  day: Day
+  step: number
+  spots?: Map<string, Spot>
+  playing: boolean
+  onPrev: () => void
+  onNext: () => void
+  onExit: () => void
+}) {
+  const leg = day.legs[step]
+  const n = day.spotIds.length
+  const name = (i: number) => (i === 0 ? day.start.name : i === n + 1 ? day.end.name : (spots?.get(day.spotIds[i - 1])?.name ?? ''))
+  const tag = (i: number) => (i === 0 ? '起' : i === n + 1 ? '终' : String(i))
+  const icon = { transit: '🚇', walk: '🚶', ride: '🚲' }[leg.mode]
+  return (
+    <div className="step-bar">
+      <div className="step-top">
+        <span className="tip-sub">
+          第 {step + 1} / {day.legs.length} 段{playing && ' · 播放中'}
+        </span>
+        <button className="btn-text" onClick={onExit}>
+          {playing ? '停止' : '看全程'}
+        </button>
+      </div>
+      <div className="step-route">
+        <span className="step-tag">{tag(step)}</span>
+        <span className="step-name">{name(step)}</span>
+        <span className="step-arrow">→</span>
+        <span className="step-tag">{tag(step + 1)}</span>
+        <span className="step-name">{name(step + 1)}</span>
+      </div>
+      <div className="leg-step">
+        {icon} {fmtDur(leg.duration)} · {leg.steps.join('，')}
+      </div>
+      <div className="step-nav">
+        <button className="chip" onClick={onPrev} disabled={step === 0}>
+          ‹ 上一段
+        </button>
+        <a className="chip" href={navUrl(leg)} target="_blank" rel="noreferrer">
+          高德导航
+        </a>
+        <button className="chip" onClick={onNext} disabled={step === day.legs.length - 1}>
+          下一段 ›
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function legPath(leg: Leg): [number, number][] {
+  return partsOf(leg).flatMap((p) => p.path)
+}
+
+// 沿折线走到比例 k（0~1）处的点，按经纬度近似距离算
+function pointAt(pts: [number, number][], k: number): [number, number] {
+  const seg: number[] = []
+  let total = 0
+  for (let i = 1; i < pts.length; i++) {
+    const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])
+    seg.push(d)
+    total += d
+  }
+  let target = total * k
+  for (let i = 0; i < seg.length; i++) {
+    if (target <= seg[i] || i === seg.length - 1) {
+      const r = seg[i] ? Math.min(1, target / seg[i]) : 0
+      return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * r, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * r]
+    }
+    target -= seg[i]
+  }
+  return pts[pts.length - 1]
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
 function StopStrip({ day, spots, onPick }: { day: Day; spots?: Map<string, Spot>; onPick: (id: string) => void }) {
   return (
     <div className="stop-strip">

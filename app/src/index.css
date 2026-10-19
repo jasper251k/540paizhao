@@ -955,3 +955,98 @@ textarea.input {
   flex: none;
   font-size: 14px;
 }
+
+/* ---------- 路线流向 ---------- */
+.map-tools {
+  position: absolute;
+  right: 12px;
+  top: calc(env(safe-area-inset-top) + 64px);
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+.map-tools .fit-btn {
+  position: static;
+}
+.leg-badge {
+  background: #fff;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 2px solid var(--text);
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+.flow-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 6px rgba(255, 77, 79, 0.3);
+}
+.step-bar {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 58px);
+  left: 10px;
+  right: 10px;
+  z-index: 15;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 8px 12px 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+}
+.step-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.step-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 15px;
+  min-width: 0;
+}
+.step-tag {
+  flex: none;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--text);
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.step-arrow {
+  color: var(--sub);
+  flex: none;
+}
+.step-nav {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.step-nav .chip {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  padding: 6px 4px;
+  text-decoration: none;
+  color: inherit;
+}
+.step-nav .chip:disabled {
+  opacity: 0.35;
+}
