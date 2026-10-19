@@ -159,3 +159,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 2026-10-19：UI 改为苹果风格：iOS 系统色变量 + 深色模式、毛玻璃顶栏/面板/浮动按钮、分组圆角列表（细分隔线）、无边框填充输入框、大标题、弹层上滑动画、按压缩放反馈；emoji 换成 `components/Icon.tsx` 线条图标；地图浅色用 whitesmoke、深色用 dark 样式（amap.ts mapStyle）。
 - 2026-10-19：批量导入（方案 A，不用 AI）：`pages/Import.tsx`，一次选多张图自动编号 → 写「1-3 武康大楼」一行一个（也可点选图片+输地名）→ 每个地名高德 AutoComplete 前 5 个结果供确认、可改关键词重搜 → 建机位挂图存收藏夹 →「用这些机位排路线」带预选进 Planner。首页地图右上角「批量导入」入口。
 - 2026-10-19：步骤 5 提前完成：vite-plugin-pwa（manifest、离线缓存、自动更新）、App 图标（`public/icon.svg` 用 qlmanage+sips 转 PNG）、iOS 主屏幕 meta；`src/backup.ts` 导出/导入 zip 备份（设置页），用于 Safari → 主屏幕 App 的数据搬家。
+- 2026-10-19：决定只在 iPhone 上用，不做多设备同步，也暂不分享给朋友（讨论过邀请链接带 Key 的方案，未做）。需要时用设置页的导出/导入备份。

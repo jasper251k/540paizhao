@@ -1,5 +1,5 @@
 import JSZip from 'jszip'
-import { db } from './db'
+import { db, type Photo } from './db'
 
 // 备份 = data.json（机位、行程、设置）+ photos/ 下每张图的大图和缩略图
 export async function exportBackup() {
@@ -45,7 +45,7 @@ export async function importBackup(file: File) {
   const json = await zip.file('data.json')?.async('string')
   if (!json) throw new Error('不是 540拍照 的备份文件')
   const data = JSON.parse(json)
-  const photos = []
+  const photos: Photo[] = []
   for (const { id, spotId } of data.photos ?? []) {
     const full = await zip.file(`photos/${id}.jpg`)?.async('blob')
     const thumb = await zip.file(`photos/${id}.thumb.jpg`)?.async('blob')
