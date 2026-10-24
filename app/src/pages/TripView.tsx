@@ -9,6 +9,8 @@ import SpotEditor, { type Draft } from '../components/SpotEditor'
 import Thumb from '../components/Thumb'
 import TripEditor from '../components/TripEditor'
 import Icon from '../components/Icon'
+import Weather, { WeatherLine } from '../components/Weather'
+import { addDays } from '../weather'
 
 const LINE_COLOR = { transit: '#2f6fed', walk: '#34a853', ride: '#f29900' }
 const PART_STYLE: Record<PartKind, { color: string; w: number; dashed?: boolean }> = {
@@ -303,6 +305,13 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
     })
   }
   const shotCount = day.spotIds.filter((id) => spots?.get(id)?.status === 'shot').length
+  const dayDate = trip.date ? addDays(trip.date, dayIdx) : undefined
+  // 天气看这天机位的中心
+  const daySpots = day.spotIds.map((id) => spots?.get(id)).filter((s): s is Spot => !!s)
+  const wx = daySpots.length ? { lng: avg(daySpots.map((s) => s.lng)), lat: avg(daySpots.map((s) => s.lat)) } : day.start
+
+  // 在第 2 天选日期，存的是第 1 天
+  const pickDate = (d: string | undefined) => db.trips.update(trip.id, { date: d && addDays(d, -dayIdx) })
 
   return (
     <div className="home">
@@ -374,6 +383,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
             {fmtDur(dayTotal(day, settings.defaultStayMin))}
             {shotCount > 0 && ` · 已拍 ${shotCount}`}
           </div>
+          {dayDate && <WeatherLine lat={wx.lat} lng={wx.lng} date={dayDate} />}
           <div className="legend">
             <span><i style={{ background: PART_STYLE.subway.color }} />地铁</span>
             <span><i style={{ background: PART_STYLE.bus.color }} />公交</span>
@@ -385,6 +395,10 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
         {!expanded && <StopStrip day={day} spots={spots} onPick={setViewingId} />}
 
         <ol className="route-list">
+          <li className="trip-weather">
+            <div className="tip-sub">{dayDate ? '这天的天气，点别的日期可以改' : '还没定哪天去，点一天就记下来'}</div>
+            <Weather lat={wx.lat} lng={wx.lng} date={dayDate} onPick={pickDate} />
+          </li>
           <li className="stop">
             <span className="stop-dot endpoint-dot">起</span>
             <div className="stop-name">{day.start.name}</div>
@@ -435,7 +449,7 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
       </div>
 
       {viewing && !editing && (
-        <SpotViewer spot={viewing} onClose={() => setViewingId(null)} onEdit={() => setEditing({ ...viewing })} />
+        <SpotViewer spot={viewing} date={dayDate} onClose={() => setViewingId(null)} onEdit={() => setEditing({ ...viewing })} />
       )}
       {editing && <SpotEditor draft={editing} onClose={() => setEditing(null)} />}
       {editingTrip && AMap && <TripEditor AMap={AMap} trip={trip} dayIdx={dayIdx} onClose={() => setEditingTrip(false)} />}
@@ -445,6 +459,8 @@ export default function TripView({ settings, tripId, onBack }: { settings: Setti
 
 // 收起时底部一排参考图，按顺序，点开看大图
 // 逐段看时顶部显示：这是第几段、从哪到哪、怎么走
+const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length
+
 function StepBar({
   day,
   step,

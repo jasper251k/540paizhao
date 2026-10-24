@@ -1607,3 +1607,81 @@ h1, h2, .brand, .tip-name, .route-summary, .step-route {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+
+/* 天气：一排日期 + 逐小时，都能左右滑 */
+.weather {
+  margin: 6px 0 2px;
+}
+.wx-days,
+.wx-hours {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.wx-days::-webkit-scrollbar,
+.wx-hours::-webkit-scrollbar {
+  display: none;
+}
+.wx-days button,
+.wx-h {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 56px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  background: var(--fill);
+}
+.wx-days button.on {
+  background: var(--tint);
+  color: #fff;
+}
+.wx-days button.on .wx-md,
+.wx-days button.on .wx-rain {
+  color: rgba(255, 255, 255, 0.85);
+}
+.wx-h {
+  min-width: 46px;
+  padding: 4px 2px;
+  background: none;
+}
+.wx-wd {
+  font-size: 13px;
+  font-weight: 600;
+}
+.wx-md {
+  font-size: 11px;
+  color: var(--sub);
+}
+.wx-ic {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.wx-t {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.wx-rain {
+  min-height: 14px;
+  font-size: 11px;
+  color: var(--tint);
+  font-variant-numeric: tabular-nums;
+}
+.wx-sun {
+  margin: 12px 0 4px;
+  font-size: 13px;
+  color: var(--sub);
+}
+.wx-msg {
+  margin: 8px 0;
+}
+.wx-line {
+  margin-top: 2px;
+}
+.trip-weather {
+  padding: 4px 0 12px;
+}

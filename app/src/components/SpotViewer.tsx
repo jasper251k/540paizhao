@@ -2,9 +2,21 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type Photo, type Spot } from '../db'
 import { useBlobUrl } from '../photos'
+import Weather from './Weather'
 
 // 点机位先看参考图；编辑在里面再点
-export default function SpotViewer({ spot, onEdit, onClose }: { spot: Spot; onEdit: () => void; onClose: () => void }) {
+// date：从行程里打开时，天气默认看那天
+export default function SpotViewer({
+  spot,
+  date,
+  onEdit,
+  onClose,
+}: {
+  spot: Spot
+  date?: string
+  onEdit: () => void
+  onClose: () => void
+}) {
   const photos = useLiveQuery(
     async () => (await db.photos.bulkGet(spot.photoIds)).filter((p): p is Photo => !!p),
     [spot.photoIds],
@@ -43,6 +55,7 @@ export default function SpotViewer({ spot, onEdit, onClose }: { spot: Spot; onEd
         </h2>
         {spot.address && <div className="tip-sub">{spot.address}</div>}
         {spot.note && <p className="viewer-note">{spot.note}</p>}
+        <Weather lat={spot.lat} lng={spot.lng} date={date} />
 
         <div className="sheet-actions">
           <button className="btn-ghost" onClick={onEdit}>

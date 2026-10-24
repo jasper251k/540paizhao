@@ -2,3 +2,5 @@ node_modules
 .DS_Store
 # 减肥 App 是独立仓库
 jianfei/
+# 训练 App 是独立仓库
+jianshen/

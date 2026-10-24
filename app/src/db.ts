@@ -30,7 +30,8 @@ export type Leg = Route & { from: Place; to: Place; ride?: boolean }
 
 // legs[i] 是第 i 个点到第 i+1 个点：起点 → 机位们 → 终点
 export type Day = { spotIds: string[]; start: Place; end: Place; legs: Leg[] }
-export type Trip = { id: string; title: string; days: Day[]; departTime?: string; createdAt: number }
+// date 是第一天的日期 YYYY-MM-DD，用来看天气；第二天就是 date + 1
+export type Trip = { id: string; title: string; days: Day[]; departTime?: string; date?: string; createdAt: number }
 
 export type Settings = {
   key: 'app'

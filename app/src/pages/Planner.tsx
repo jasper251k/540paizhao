@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, newId, type Day, type Place, type Settings } from '../db'
-import { useAMap, type AMapNS } from '../amap'
+import { useAMap, SHANGHAI, type AMapNS } from '../amap'
 import { planDay } from '../routing'
 import PlaceSearch from '../components/PlaceSearch'
 import Thumb from '../components/Thumb'
 import Icon from '../components/Icon'
+import Weather from '../components/Weather'
+import { addDays, monthDay, today } from '../weather'
 
-const defaultTitle = () => {
-  const d = new Date()
-  return `${d.getMonth() + 1}月${d.getDate()}日`
-}
+const defaultTitle = (date?: string) => monthDay(date ?? today())
 
 export default function Planner({
   settings,
@@ -30,11 +29,25 @@ export default function Planner({
   const [days, setDays] = useState<1 | 2 | null>(null)
   const [start, setStart] = useState<Place | undefined>(settings.lastStart ?? settings.home)
   const [end, setEnd] = useState<Place | undefined>(settings.home)
-  const [title, setTitle] = useState(defaultTitle)
+  const [title, setTitle] = useState(() => defaultTitle())
   const [depart, setDepart] = useState('')
+  const [date, setDate] = useState<string>()
   const [progress, setProgress] = useState<string | null>(null)
 
   const ids = Object.keys(picked)
+  // 天气看选中机位的中心，没选就看出发地
+  const pickedSpots = spots?.filter((s) => picked[s.id]) ?? []
+  const [wxLng, wxLat] = pickedSpots.length
+    ? [avg(pickedSpots.map((s) => s.lng)), avg(pickedSpots.map((s) => s.lat))]
+    : start
+      ? [start.lng, start.lat]
+      : SHANGHAI
+
+  function pickDate(d: string | undefined) {
+    // 名字还是默认的日期时，跟着换
+    if (title === defaultTitle(date)) setTitle(defaultTitle(d))
+    setDate(d)
+  }
 
   function toggle(id: string) {
     const p = { ...picked }
@@ -59,7 +72,7 @@ export default function Planner({
         result.push(await planDay(AMap, start, end, daySpots, (done, total) => setProgress(`${prefix}正在查路线 ${done}/${total}`)))
       }
       const id = newId()
-      await db.trips.put({ id, title: title.trim() || defaultTitle(), days: result, departTime: depart || undefined, createdAt: Date.now() })
+      await db.trips.put({ id, title: title.trim() || defaultTitle(date), days: result, departTime: depart || undefined, date, createdAt: Date.now() })
       await db.settings.update('app', { lastStart: start })
       onDone(id)
     } catch (e) {
@@ -104,6 +117,16 @@ export default function Planner({
             </button>
           </div>
           {days === 2 && <div className="tip-sub">选中的机位右边可以切换第几天，每天都从出发地出发、最后回到终点。</div>}
+        </div>
+      </section>
+
+      <section className="card">
+        <div className="field">
+          <span>
+            哪天去？（可不选，点一天看逐小时天气）
+            {date && days === 2 && `，第二天是${monthDay(addDays(date, 1))}`}
+          </span>
+          <Weather lat={wxLat} lng={wxLng} date={date} onPick={pickDate} />
         </div>
       </section>
 
@@ -154,6 +177,8 @@ export default function Planner({
     </div>
   )
 }
+
+const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length
 
 function PlaceField({
   label,

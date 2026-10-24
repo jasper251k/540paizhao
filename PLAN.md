@@ -170,3 +170,4 @@ https://uri.amap.com/navigation?from={lng},{lat},{名称}&to={lng},{lat},{名称
 - 用户只在 iPhone 主屏幕 App 上用，数据存在手机本地（IndexedDB），改数据结构时要做 Dexie 版本升级，别让旧数据丢失。
 - 2026-10-19：新增根目录 CLAUDE.md（新对话自动加载的简短索引：项目概况、流程、代码地图、用户偏好、待做想法）。约定每次收尾在本节追加进度。
 - 2026-10-19：修 bug「新建行程无法下滑选机位」。原因：.page 是竖向 flex，带 overflow:hidden 的 .spot-list 被压缩进一屏。改 index.css：.page > * { flex-shrink: 0 }（同时惠及其他用 .page 的页面）。
+- 2026-10-24：加天气预报。数据用 Open-Meteo（免费、不用 Key、可跨域，按经纬度查 16 天+逐小时；高德天气只能按城市、4 天，没用）。三处能看：首页/行程里点机位弹窗（看该机位，可切换日期）；新建行程新增「哪天去？」可选日期（看选中机位中心的天气，名字跟着变成那天）；行程页顶部一行摘要（晴雨、气温、降雨、日落）+ 展开路线详情里看逐小时，老行程也能在这里补选日期。行程新增可选字段 `date`（第一天日期，不建索引，所以没升 Dexie 版本）。新文件 `src/weather.ts`、`components/Weather.tsx`；改 `db.ts`、`SpotViewer.tsx`、`Planner.tsx`、`TripView.tsx`、`index.css`。

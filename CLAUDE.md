@@ -32,6 +32,7 @@
 | `src/routing.ts` | 查路线（地铁/步行/骑车）、排顺序、高德导航链接 |
 | `src/parseGroups.ts` | 批量导入的自然语言识别（规则版，无 AI） |
 | `src/backup.ts` | 导出/导入 zip 备份 |
+| `src/weather.ts`、`components/Weather.tsx` | 天气预报（Open-Meteo，免费免 Key）：16 天+逐小时、日出日落 |
 | `src/pages/Home.tsx` | 首页收藏夹地图、列表 |
 | `src/pages/Import.tsx` | 批量导入 |
 | `src/pages/Planner.tsx` | 新建行程 |
