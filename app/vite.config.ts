@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => ({
     // 添加到主屏幕后像 App 一样全屏打开；页面缓存在手机里，网络差也能秒开
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'icon.svg'],
+      includeAssets: ['apple-touch-icon.png'],
       manifest: {
         name: '540拍照',
         short_name: '540拍照',
